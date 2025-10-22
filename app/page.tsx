@@ -1,9 +1,10 @@
-
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
 import Papa from 'papaparse';
 import LeadTable, { Lead } from '@/components/LeadTable';
+import JSZip from 'jszip';
+import { jsPDF } from 'jspdf';
 
 export default function Home() {
   const [leads, setLeads] = useState<Lead[]>([]);
@@ -50,17 +51,59 @@ export default function Home() {
     }
   };
 
+  // CLIENT-SIDE PDF GENERATION (no server route, no pdfkit)
   const downloadPDFs = async () => {
+    if (leads.length === 0) return;
     setLoading(true);
     try {
-      const r = await fetch('/api/pdfs', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ leads })
-      });
-      if (!r.ok) throw new Error('PDF server error');
-      const blob = await r.blob();
-      const url = URL.createObjectURL(blob);
+      const zip = new JSZip();
+      const today = new Date().toLocaleDateString('en-US');
+
+      for (const lead of leads) {
+        const owner = lead.owner_name || 'Owner';
+        const addr = lead.mailing_address || '';
+        const prop = lead.property_address || '';
+        const offer = String(lead.offer_price ?? '');
+
+        const letterText = [
+          today,
+          '',
+          owner,
+          addr,
+          '',
+          `Re: ${prop}`,
+          '',
+          `Hello ${owner},`,
+          '',
+          `After reviewing recent comparable sales and the property's condition, I can offer $${offer} for ${prop} in as-is condition.`,
+          '',
+          '• All cash or proof of funds',
+          '• No realtor commissions',
+          '• Flexible closing date—you pick the timeline',
+          '• We can handle clean-out and basic repairs',
+          '',
+          'If this range works, reply to this letter or call me. I’m happy to walk through details or adjust terms to fit your needs.',
+          '',
+          'Sincerely,',
+          (process.env.NEXT_PUBLIC_FROM_NAME || 'Offer Team'),
+          (process.env.NEXT_PUBLIC_COMPANY_NAME || 'Your Company')
+        ].join('\n');
+
+        const doc = new jsPDF({ unit: 'pt', format: 'letter' });
+        const left = 54;
+        const top = 72;
+        const maxWidth = 540; // letter page width minus margins
+        doc.setFont('Times', 'Normal').setFontSize(12);
+        const lines = doc.splitTextToSize(letterText, maxWidth);
+        doc.text(lines, left, top);
+
+        const pdfArrayBuffer = doc.output('arraybuffer');
+        const safe = (prop || 'property').replace(/[^a-z0-9]+/gi, '_');
+        zip.file(`${safe}.pdf`, new Blob([pdfArrayBuffer], { type: 'application/pdf' }));
+      }
+
+      const content = await zip.generateAsync({ type: 'blob' });
+      const url = URL.createObjectURL(content);
       const a = document.createElement('a');
       a.href = url;
       a.download = 'offer_letters.zip';
