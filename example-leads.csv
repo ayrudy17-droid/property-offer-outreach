@@ -1,0 +1,4 @@
+
+owner_name,email,mailing_address,property_address,apn,beds,baths,sqft,year_built,last_sale_date,last_sale_price,est_value,offer_basis,repairs_est,channel,status,notes
+John Doe,john@example.com,"100 Main St, Oakhurst, NJ 07755","710 Dow Ave, Oakhurst, NJ 07755",,3,2,1800,1970,2010-05-14,425000,650000,0.70,45000,email,new,Sample lead
+Jane Smith,jane@example.com,"22 Park Ave, Asbury Park, NJ 07712","12 Park Ave, Asbury Park, NJ 07712",,2,1,1200,1930,2006-09-01,225000,420000,0.68,55000,email,new,Coastal

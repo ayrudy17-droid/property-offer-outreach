@@ -1,0 +1,22 @@
+
+{{today}}
+
+{{owner_name}}
+{{mailing_address}}
+
+Re: {{property_address}}
+
+Hello {{owner_name}},
+
+After reviewing recent comparable sales and the property's condition, I can offer ${{offer_price}} for {{property_address}} in as-is condition.
+
+• All cash or proof of funds
+• No realtor commissions
+• Flexible closing date—you pick the timeline
+• We can handle clean-out and basic repairs
+
+If this range works, reply to this letter or call me at {{company_phone}}. I'm happy to walk through details or adjust terms to fit your needs.
+
+Sincerely,
+{{from_name}}
+{{company_name}}
